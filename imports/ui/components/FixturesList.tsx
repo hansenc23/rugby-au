@@ -19,11 +19,11 @@ export const FixturesList = () => {
   }, []);
 
   const filteredFixtures = fixtures.filter((fixture) => {
-    return (
-      fixture.home_team.toLowerCase().includes(search) ||
-      fixture.away_team.toLowerCase().includes(search) ||
-      fixture.competition_name.toLowerCase().includes(search)
-    );
+    return search
+      ? fixture.home_team?.toLowerCase().includes(search) ||
+          fixture.away_team?.toLowerCase().includes(search) ||
+          fixture.competition_name?.toLowerCase().includes(search)
+      : fixtures;
   });
 
   useEffect(() => {
