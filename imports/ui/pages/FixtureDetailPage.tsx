@@ -15,7 +15,7 @@ export const FixtureDetailPage = () => {
     const { away_team, competition_name, fixture_datetime, fixture_round, home_team, readOnly, season } = fixture;
     return (
       <>
-        <div>
+        <div className="shadow-lg text-center p-5">
           <h1 className="text-2xl py-3">
             {competition_name} {season}
           </h1>
@@ -29,7 +29,7 @@ export const FixtureDetailPage = () => {
           <>
             <button
               onClick={openModal}
-              className="bg-blue-800 hover:bg-blue-700 text-white py-2 px-4 rounded text-center"
+              className="bg-blue-800 hover:bg-blue-700 text-white py-2 px-4 rounded text-center mt-5"
             >
               Edit Fixture
             </button>

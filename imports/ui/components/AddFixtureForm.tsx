@@ -3,9 +3,11 @@ import { Meteor } from "meteor/meteor";
 import { Fixture } from "../../db/FixturesCollection";
 import { useAwayTeam, useHomeTeam } from "../hooks/useFixtureData";
 import useAlertMessage from "../hooks/useAlertMessage";
+import { formatDuration } from "../utils";
 export const AddFixtureForm = () => {
   const homeTeams: Pick<Fixture, "home_team" | "_id">[] = useHomeTeam();
   const awayTeams: Pick<Fixture, "away_team" | "_id">[] = useAwayTeam();
+  const [message, setMessage, color] = useAlertMessage();
 
   const homeTeamsUnique = React.useMemo(() => {
     const uniqueTeams = new Map();
@@ -32,7 +34,7 @@ export const AddFixtureForm = () => {
   const [competitionName, setCompetitionName] = useState<string>("");
   const [season, setSeason] = useState<string>("");
   const [round, setRound] = useState<number>(0);
-  const [message, setMessage, color] = useAlertMessage();
+  const [duration, setDuration] = useState<number>(0);
 
   const handleHomeTeamChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setHomeTeam(event.target.value);
@@ -53,18 +55,26 @@ export const AddFixtureForm = () => {
     setSeason(event.target.value);
   };
 
+  const handleDurationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDuration(parseFloat(event.target.value));
+  };
+
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!homeTeam || !awayTeam || !competitionName || !season || isNaN(round)) {
+    if (!homeTeam || !awayTeam || !competitionName || !season || isNaN(round) || isNaN(duration)) {
       setMessage({ text: "Please fill in all fields correctly.", type: "error" });
       return;
     }
+
+    const formattedDuration = formatDuration(duration);
+
     const payload = {
       homeTeam,
       awayTeam,
       competitionName,
       season,
       round,
+      duration: formattedDuration,
     };
     Meteor.call("fixtures.insert", payload, (error: Meteor.Error) => {
       if (error) {
@@ -75,6 +85,7 @@ export const AddFixtureForm = () => {
         setCompetitionName("");
         setRound(0);
         setSeason("");
+        setDuration(0);
         setMessage({ text: "Fixture added successfully!", type: "success" });
       }
     });
@@ -82,10 +93,7 @@ export const AddFixtureForm = () => {
 
   const renderAlert = () => {
     return message ? (
-      <div
-        className={`bg-${color}-100 border border-${color}-400 text-${color}-700 px-4 py-3 rounded relative`}
-        role="alert"
-      >
+      <div className={`${color} border px-4 py-3 rounded relative`} role="alert">
         <span className="block sm:inline">{message?.text}</span>
       </div>
     ) : null;
@@ -203,6 +211,25 @@ export const AddFixtureForm = () => {
               placeholder="Round"
               value={round}
               onChange={handleRoundChange}
+            />
+          </div>
+          <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0 sm:mt-6">
+            <label
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              htmlFor="grid-first-name"
+            >
+              Duration (minutes)
+            </label>
+            <input
+              className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+              id="grid-first-name"
+              required
+              type="number"
+              placeholder="Duration"
+              value={duration}
+              min="0"
+              step="0.1"
+              onChange={handleDurationChange}
             />
           </div>
         </div>

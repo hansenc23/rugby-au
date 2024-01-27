@@ -4,7 +4,7 @@ import { Meteor } from "meteor/meteor";
 import useAlertMessage from "../hooks/useAlertMessage";
 
 export const UploadInput: React.FC = () => {
-  const { handleFileSelect, parsedData, processFile, setSelectedFile, selectedFile } = useCsvFileReader();
+  const { handleFileSelect, processFile, setSelectedFile, selectedFile } = useCsvFileReader();
   const [inputKey, setInputKey] = useState(Date.now());
   const [message, setMessage, color] = useAlertMessage();
 
@@ -22,12 +22,10 @@ export const UploadInput: React.FC = () => {
       return;
     }
     const data = await processFile();
-    Meteor.call("file.upload", JSON.stringify(data), (error: Meteor.Error | null, response: any) => {
+    Meteor.call("file.upload", JSON.stringify(data), (error: Meteor.Error | null) => {
       if (error) {
-        console.log(error);
         setMessage({ text: `${error}`, type: "error" });
       } else {
-        console.log(response);
         setSelectedFile(null);
         setInputKey(Date.now());
         setMessage({ text: `File uploaded successfully`, type: "success" });
@@ -42,10 +40,7 @@ export const UploadInput: React.FC = () => {
 
   const renderAlert = () => {
     return message ? (
-      <div
-        className={`bg-${color}-100 border border-${color}-400 text-${color}-700 px-4 py-3 rounded relative`}
-        role="alert"
-      >
+      <div className={`${color} border px-4 py-3 rounded relative`} role="alert">
         <span className="block sm:inline">{message?.text}</span>
       </div>
     ) : null;

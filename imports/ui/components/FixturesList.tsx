@@ -30,7 +30,7 @@ export const FixturesList = () => {
     if (search) {
       navigate(`?search=${encodeURIComponent(search)}`);
     } else {
-      navigate("/");
+      navigate("/fixtures");
     }
   }, [search, navigate, initialSearch]);
 
@@ -43,7 +43,7 @@ export const FixturesList = () => {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
-      <h2 className="text-3xl font-medium ">Fixtures</h2>
+      <h2 className="text-3xl font-medium pl-1">Fixtures</h2>
       <ul role="list" className="divide-y divide-gray-500 mt-5">
         {filteredFixtures.map((fixture) => (
           <FixtureItem key={fixture._id} fixture={fixture} />

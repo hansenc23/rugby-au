@@ -1,5 +1,5 @@
 import { Meteor } from "meteor/meteor";
-import { Match, check } from "meteor/check";
+import { check } from "meteor/check";
 import { Fixture, FixturesCollection } from "../db/FixturesCollection";
 import { v4 as uuidv4 } from "uuid";
 Meteor.methods({
@@ -10,6 +10,7 @@ Meteor.methods({
       competitionName: String,
       season: String,
       round: Number,
+      duration: String,
     });
 
     const payload: Fixture = {
@@ -19,7 +20,7 @@ Meteor.methods({
       season: fixture.season,
       fixture_round: fixture.round,
       readOnly: false,
-      fixture_datetime: "fsdfa",
+      fixture_datetime: fixture.duration,
       fixture_mid: uuidv4(),
       createdAt: new Date(), // Add a createdAt field
     };
@@ -27,14 +28,15 @@ Meteor.methods({
     FixturesCollection.insert(payload);
   },
 
-  "fixture.updateById"(fixture_mid, updatedFixture) {
-    check(fixture_mid, String);
+  "fixture.updateById"(_id, updatedFixture) {
+    check(_id, String);
     check(updatedFixture, {
       homeTeam: String,
       awayTeam: String,
       competitionName: String,
       season: String,
       round: Number,
+      duration: String,
     });
 
     let payload: Partial<Fixture> = {
@@ -43,9 +45,10 @@ Meteor.methods({
       competition_name: updatedFixture.competitionName,
       season: updatedFixture.season,
       fixture_round: updatedFixture.round,
+      fixture_datetime: updatedFixture.duration,
       updatedAt: new Date(),
     };
 
-    FixturesCollection.update({ fixture_mid: fixture_mid }, { $set: payload });
+    FixturesCollection.update({ _id: _id }, { $set: payload });
   },
 });

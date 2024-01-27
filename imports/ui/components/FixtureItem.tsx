@@ -8,7 +8,7 @@ export const FixtureItem: React.FC<FixtureItemProps> = ({ fixture }) => {
   const { _id, fixture_mid, away_team, fixture_datetime, fixture_round, home_team, season, competition_name } = fixture;
 
   return (
-    <Link to={`/fixture/${_id}`} className="shadow-md">
+    <Link to={`/fixtures/${_id}`} className="shadow-md">
       <li className="flex justify-between gap-x-6 p-5 mb-5 hover:bg-slate-100 shadow-lg rounded-lg">
         <div className="flex min-w-0 gap-x-4">
           <div className="min-w-0 flex-auto">

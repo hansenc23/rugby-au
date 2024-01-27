@@ -2,13 +2,17 @@ import React, { useState } from "react";
 import { Fixture } from "../../db/FixturesCollection";
 import { useAwayTeam, useHomeTeam } from "../hooks/useFixtureData";
 import { Meteor } from "meteor/meteor";
+import { formatDuration, parseDuration } from "../utils";
+import useAlertMessage from "../hooks/useAlertMessage";
 interface EditFixtureFormProps {
   fixture: Fixture;
 }
 export const EditFixtureForm: React.FC<EditFixtureFormProps> = ({ fixture }) => {
-  const { away_team, competition_name, fixture_datetime, fixture_round, home_team, season, fixture_mid } = fixture;
+  const { _id, away_team, competition_name, fixture_datetime, fixture_round, home_team, season } = fixture;
   const homeTeams: Pick<Fixture, "home_team" | "_id">[] = useHomeTeam();
   const awayTeams: Pick<Fixture, "away_team" | "_id">[] = useAwayTeam();
+  const [message, setMessage, color] = useAlertMessage();
+
   const homeTeamsUnique = React.useMemo(() => {
     const uniqueTeams = new Map();
     homeTeams.forEach((item) => {
@@ -34,6 +38,7 @@ export const EditFixtureForm: React.FC<EditFixtureFormProps> = ({ fixture }) => 
   const [competitionName, setCompetitionName] = useState<string>(competition_name);
   const [seasonCurrent, setSeasonCurrent] = useState<string>(season);
   const [round, setRound] = useState<number>(fixture_round);
+  const [duration, setDuration] = useState<number>(parseDuration(fixture_datetime));
 
   const handleHomeTeamChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setHomeTeam(event.target.value);
@@ -54,26 +59,42 @@ export const EditFixtureForm: React.FC<EditFixtureFormProps> = ({ fixture }) => 
     setSeasonCurrent(event.target.value);
   };
 
+  const handleDurationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDuration(parseFloat(event.target.value));
+  };
+
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!homeTeam || !awayTeam || !competitionName || !season || isNaN(round)) {
+    if (!homeTeam || !awayTeam || !competitionName || !season || isNaN(round) || isNaN(duration)) {
       alert("Please fill in all fields correctly.");
       return;
     }
+
+    const formattedDuration = formatDuration(duration);
+
     const payload = {
       homeTeam,
       awayTeam,
       competitionName,
       season,
       round,
+      duration: formattedDuration,
     };
-    Meteor.call("fixture.updateById", fixture_mid, payload, (error: Meteor.Error) => {
+    Meteor.call("fixture.updateById", _id, payload, (error: Meteor.Error) => {
       if (error) {
-        alert(`Error: ${error.message}`);
+        setMessage({ text: `Error: ${error}`, type: "error" });
       } else {
-        alert("Fixture added successfully!");
+        setMessage({ text: `"Fixture updated successfully!"`, type: "success" });
       }
     });
+  };
+
+  const renderAlert = () => {
+    return message && color ? (
+      <div className={`${color} border px-4 my-4 py-3 rounded relative`} role="alert">
+        <span className="block sm:inline">{message?.text}</span>
+      </div>
+    ) : null;
   };
   return (
     <form className="w-full p-6" onSubmit={handleFormSubmit}>
@@ -187,7 +208,27 @@ export const EditFixtureForm: React.FC<EditFixtureFormProps> = ({ fixture }) => 
             onChange={handleRoundChange}
           />
         </div>
+        <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+          <label
+            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+            htmlFor="grid-first-name"
+          >
+            Duration (minutes)
+          </label>
+          <input
+            className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+            id="grid-first-name"
+            required
+            type="number"
+            placeholder="Duration"
+            value={duration}
+            min="0"
+            step="0.1"
+            onChange={handleDurationChange}
+          />
+        </div>
       </div>
+      {message && renderAlert()}
       <button className="bg-blue-800 hover:bg-blue-700 text-white py-2 px-4 rounded text-center" type="submit">
         Submit
       </button>

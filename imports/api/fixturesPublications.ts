@@ -10,7 +10,7 @@ Meteor.publish("fixtures", () => {
   );
 });
 
-Meteor.publish("fixtureById", function (_id) {
+Meteor.publish("fixtureById", (_id: string) => {
   return FixturesCollection.find({ _id: { $eq: _id } });
 });
 
