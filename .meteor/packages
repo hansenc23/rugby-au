@@ -24,3 +24,5 @@ zodern:types            # Pull in type declarations from other Meteor packages
 simple:rest
 sakulstra:aggregate
 meteorhacks:aggregate
+meteortesting:mocha
+johanbrook:publication-collector
