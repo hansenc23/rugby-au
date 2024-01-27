@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useTracker } from "meteor/react-meteor-data";
 import { Meteor } from "meteor/meteor";
-import { FixturesCollection, Fixture } from "../../db/FixturesCollection";
+import { Fixture } from "../../db/FixturesCollection";
 import { useAwayTeam, useHomeTeam } from "../hooks/useFixtureData";
+import useAlertMessage from "../hooks/useAlertMessage";
 export const AddFixtureForm = () => {
   const homeTeams: Pick<Fixture, "home_team" | "_id">[] = useHomeTeam();
   const awayTeams: Pick<Fixture, "away_team" | "_id">[] = useAwayTeam();
@@ -32,6 +32,7 @@ export const AddFixtureForm = () => {
   const [competitionName, setCompetitionName] = useState<string>("");
   const [season, setSeason] = useState<string>("");
   const [round, setRound] = useState<number>(0);
+  const [message, setMessage, color] = useAlertMessage();
 
   const handleHomeTeamChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setHomeTeam(event.target.value);
@@ -55,7 +56,7 @@ export const AddFixtureForm = () => {
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!homeTeam || !awayTeam || !competitionName || !season || isNaN(round)) {
-      alert("Please fill in all fields correctly.");
+      setMessage({ text: "Please fill in all fields correctly.", type: "error" });
       return;
     }
     const payload = {
@@ -67,129 +68,149 @@ export const AddFixtureForm = () => {
     };
     Meteor.call("fixtures.insert", payload, (error: Meteor.Error) => {
       if (error) {
-        alert(`Error: ${error.message}`);
+        setMessage({ text: `Error: ${error.message}`, type: "error" });
       } else {
-        alert("Fixture added successfully!");
+        setAwayTeam("");
+        setHomeTeam("");
+        setCompetitionName("");
+        setRound(0);
+        setSeason("");
+        setMessage({ text: "Fixture added successfully!", type: "success" });
       }
     });
   };
 
+  const renderAlert = () => {
+    return message ? (
+      <div
+        className={`bg-${color}-100 border border-${color}-400 text-${color}-700 px-4 py-3 rounded relative`}
+        role="alert"
+      >
+        <span className="block sm:inline">{message?.text}</span>
+      </div>
+    ) : null;
+  };
+
   return (
-    <form className="w-full" onSubmit={handleFormSubmit}>
-      <div className="flex flex-wrap -mx-3 mb-6">
-        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-          <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
-            Home Team
-          </label>
-          <div className="relative">
-            <select
-              className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              onChange={handleHomeTeamChange}
-              value={homeTeam}
-              required
-              id="grid-state"
-            >
-              <option></option>
-              {homeTeamsUnique.length > 0
-                ? homeTeamsUnique.map(({ _id, home_team }) => (
-                    <option key={_id} value={home_team}>
-                      {home_team}
-                    </option>
-                  ))
-                : null}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-              </svg>
+    <>
+      <h1 className="text-4xl font-bold">Add a fixture</h1>
+      <form className="w-full mt-6" onSubmit={handleFormSubmit}>
+        <div className="flex flex-wrap -mx-3 sm:mb-6">
+          <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+            <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
+              Home Team
+            </label>
+            <div className="relative">
+              <select
+                className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                onChange={handleHomeTeamChange}
+                value={homeTeam}
+                required
+                id="grid-state"
+              >
+                <option></option>
+                {homeTeamsUnique.length > 0
+                  ? homeTeamsUnique.map(({ _id, home_team }) => (
+                      <option key={_id} value={home_team}>
+                        {home_team}
+                      </option>
+                    ))
+                  : null}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
+            <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
+              Away Team
+            </label>
+            <div className="relative">
+              <select
+                className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                onChange={handleAwayTeamChange}
+                value={awayTeam}
+                required
+                id="grid-state"
+              >
+                <option></option>
+                {awayTeamsUnique.length > 0
+                  ? awayTeamsUnique.map(({ _id, away_team }) => (
+                      <option key={_id} value={away_team}>
+                        {away_team}
+                      </option>
+                    ))
+                  : null}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </div>
             </div>
           </div>
         </div>
-        <div className="w-full md:w-1/2 px-3 mb-6 md:mb-0">
-          <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-state">
-            Away Team
-          </label>
-          <div className="relative">
-            <select
-              className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              onChange={handleAwayTeamChange}
-              value={awayTeam}
-              required
-              id="grid-state"
+        <div className="flex flex-wrap -mx-3 mb-6">
+          <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+            <label
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              htmlFor="grid-first-name"
             >
-              <option></option>
-              {awayTeamsUnique.length > 0
-                ? awayTeamsUnique.map(({ _id, away_team }) => (
-                    <option key={_id} value={away_team}>
-                      {away_team}
-                    </option>
-                  ))
-                : null}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-              </svg>
-            </div>
+              Competition Name
+            </label>
+            <input
+              className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+              id="grid-first-name"
+              type="text"
+              required
+              placeholder="Competition name"
+              onChange={handleCompetitionNameChange}
+              value={competitionName}
+            />
+          </div>
+          <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+            <label
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              htmlFor="grid-first-name"
+            >
+              Season
+            </label>
+            <input
+              className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+              id="grid-first-name"
+              type="text"
+              required
+              placeholder="Season"
+              onChange={handleSeasonChange}
+              value={season}
+            />
+          </div>
+          <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+            <label
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              htmlFor="grid-first-name"
+            >
+              Round
+            </label>
+            <input
+              className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+              id="grid-first-name"
+              required
+              type="number"
+              placeholder="Round"
+              value={round}
+              onChange={handleRoundChange}
+            />
           </div>
         </div>
-      </div>
-      <div className="flex flex-wrap -mx-3 mb-6">
-        <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-          <label
-            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            htmlFor="grid-first-name"
-          >
-            Competition Name
-          </label>
-          <input
-            className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-            id="grid-first-name"
-            type="text"
-            required
-            placeholder="Competition name"
-            onChange={handleCompetitionNameChange}
-            value={competitionName}
-          />
-        </div>
-        <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-          <label
-            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            htmlFor="grid-first-name"
-          >
-            Season
-          </label>
-          <input
-            className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-            id="grid-first-name"
-            type="text"
-            required
-            placeholder="Season"
-            onChange={handleSeasonChange}
-            value={season}
-          />
-        </div>
-        <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-          <label
-            className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-            htmlFor="grid-first-name"
-          >
-            Round
-          </label>
-          <input
-            className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-            id="grid-first-name"
-            required
-            type="number"
-            placeholder="Round"
-            value={round}
-            onChange={handleRoundChange}
-          />
-        </div>
-      </div>
-      <button className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded" type="submit">
-        Add Fixture
-      </button>
-    </form>
+        {message && renderAlert()}
+        <button className="bg-blue-800 hover:bg-blue-700 text-white py-2 px-4 rounded text-center mt-6" type="submit">
+          Add Fixture
+        </button>
+      </form>
+    </>
   );
 };

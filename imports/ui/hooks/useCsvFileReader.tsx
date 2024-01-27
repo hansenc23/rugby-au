@@ -21,11 +21,10 @@ export const useCsvFileReader = () => {
           error: (error) => reject(error),
         });
       } else {
-        alert("Please upload a CSV file.");
         reject(new Error("Invalid file type"));
       }
     });
   };
 
-  return { parsedData, handleFileSelect, processFile };
+  return { parsedData, handleFileSelect, processFile, setSelectedFile, selectedFile };
 };

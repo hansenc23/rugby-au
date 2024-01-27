@@ -27,10 +27,10 @@ export const useAwayTeam = (): Fixture[] => {
   }, []);
 };
 
-export const useFixtureById = (fixture_mid: string) => {
+export const useFixtureById = (_id: string) => {
   return useTracker(() => {
-    Meteor.subscribe("fixtureById", fixture_mid); // Subscribe with the fixture_mid parameter
-    const fixture = FixturesCollection.findOne({ fixture_mid: fixture_mid });
+    Meteor.subscribe("fixtureById", _id);
+    const fixture = FixturesCollection.findOne({ _id: _id });
     return fixture;
   });
 };

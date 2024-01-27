@@ -10,18 +10,8 @@ Meteor.publish("fixtures", () => {
   );
 });
 
-// Meteor.publish("fixtureById", (fixture_mid: string) => {
-//   return FixturesCollection.find({ fixture_mid: { $eq: fixture_mid } });
-// });
-Meteor.publish("fixtureById", function (fixture_mid) {
-  // Check if the user is logged in or any other authentication/authorization logic if needed
-  // For example:
-  // if (!this.userId) {
-  //   return this.ready();
-  // }
-
-  // Publish the fixture by fixture_mid
-  return FixturesCollection.find({ fixture_mid: { $eq: fixture_mid } });
+Meteor.publish("fixtureById", function (_id) {
+  return FixturesCollection.find({ _id: { $eq: _id } });
 });
 
 Meteor.publish("home-teams", () => {

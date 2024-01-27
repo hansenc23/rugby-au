@@ -29,7 +29,7 @@ export const FixtureDetailPage = () => {
           <>
             <button
               onClick={openModal}
-              className="bg-pink-500 text-white font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none ease-linear transition-all duration-150"
+              className="bg-blue-800 hover:bg-blue-700 text-white py-2 px-4 rounded text-center"
             >
               Edit Fixture
             </button>
