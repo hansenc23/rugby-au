@@ -6,7 +6,7 @@ Access the live app here - https://rugby-demo.au.meteorapp.com/
 
 ## Introduction
 
-Welcome to Rugby Fixtures, a web application built with Meteor JS.
+Welcome to Rugby Fixtures, a web application built with Meteor JS. Deployed to Meteor Cloud.
 
 ## Getting Started
 
@@ -33,6 +33,7 @@ These instructions will get your copy of the project up and running on your loca
    ```sh
    npm start
    ```
+4. You can access the app on http://localhost:3000/
 
 ## Built With
 
