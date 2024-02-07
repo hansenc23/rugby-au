@@ -51,4 +51,9 @@ Meteor.methods({
 
     FixturesCollection.update({ _id: _id }, { $set: payload });
   },
+  "fixture.deleteById"(_id) {
+    check(_id, String);
+
+    FixturesCollection.remove({ _id: _id });
+  },
 });

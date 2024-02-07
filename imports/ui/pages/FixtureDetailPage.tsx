@@ -1,6 +1,8 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { useFixtureById } from "../hooks/useFixtureData";
+import { Meteor } from "meteor/meteor";
+
 import { Fixture } from "../../db/FixturesCollection";
 import { Modal } from "../components/Modal";
 import { useModal } from "../hooks/useModal";
@@ -10,6 +12,16 @@ export const FixtureDetailPage = () => {
 
   const fixture = useFixtureById(id || "");
   const { isModalOpen, openModal, closeModal } = useModal();
+
+  const handleFixtureDelete = () => {
+    Meteor.call("fixture.deleteById", id, (error: Meteor.Error) => {
+      if (error) {
+        alert(`Error: ${error}`);
+      } else {
+        alert("Fixture deleted successfully");
+      }
+    });
+  };
 
   const renderFixtureDetail = (fixture: Fixture) => {
     const { away_team, competition_name, fixture_datetime, fixture_round, home_team, readOnly, season } = fixture;
@@ -38,6 +50,13 @@ export const FixtureDetailPage = () => {
             </Modal>
           </>
         ) : null}
+
+        <button
+          onClick={handleFixtureDelete}
+          className="bg-red-800 hover:bg-red-700 text-white ml-3 py-2 px-4 rounded text-center mt-5"
+        >
+          Delete Fixture
+        </button>
       </>
     );
   };

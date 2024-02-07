@@ -22,6 +22,7 @@ export const UploadInput: React.FC = () => {
       return;
     }
     const data = await processFile();
+    console.log("data", data);
     Meteor.call("file.upload", JSON.stringify(data), (error: Meteor.Error | null) => {
       if (error) {
         setMessage({ text: `${error}`, type: "error" });

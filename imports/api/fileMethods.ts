@@ -6,6 +6,18 @@ Meteor.methods({
   "file.upload": async (data) => {
     const parsed = JSON.parse(data);
     check(parsed, Array);
+
+    async function getFixture(fixture_mid: Fixture) {
+      return FixturesCollection.findOne({ fixture_mid: fixture_mid });
+    }
+
+    async function updateFixture(fixture: Fixture) {
+      console.log("fixture", fixture);
+
+      // return FixturesCollection.update({ fixture_mid: fixture_mid });
+      return FixturesCollection.update({ fixture_mid: fixture.fixture_mid }, { $set: fixture });
+    }
+
     async function insertFixture({
       fixture_mid,
       home_team,
@@ -32,7 +44,12 @@ Meteor.methods({
       try {
         for (let fixture of parsed) {
           //@ts-ignore
-          await insertFixture(fixture);
+          const checkFixture = await getFixture(fixture.fixture_mid);
+          if (checkFixture) {
+            await updateFixture(checkFixture);
+          } else {
+            await insertFixture(fixture);
+          }
         }
 
         return { status: 200, message: "File uploaded successfully" };
